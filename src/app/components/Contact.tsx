@@ -13,7 +13,7 @@ export function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
   const contactInfo = [
-    { icon: Mail, label: "Email", value: "photo@example.com" },
+    { icon: Mail, label: "Email", value: "TheTeaLordIsInvincible@yandex.ru" },
     { icon: Phone, label: "Телефон", value: "+7 (918) 104-13-55" },
     { icon: Send, label: "Telegram", value: "@TheTeaLordIsInvincible" },
     { icon: MapPin, label: "Локация", value: "Сочи, Россия" },
