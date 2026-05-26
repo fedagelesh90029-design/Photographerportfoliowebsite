@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "cd server && npx prisma generate && cd .. && vite build",
+    "build": "cd server && npx prisma generate && npx prisma db push && cd .. && vite build",
     "dev": "vite",
     "server": "cd server && npx tsx index.ts",
     "start-all": "concurrently \"npm run dev\" \"npm run server\""
