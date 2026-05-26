@@ -22,7 +22,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN || '8898310243:AAED8H16pJtf7kt5foFou4ishGdWU2rpqWY');
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '7472331326';
 
 // Helper to send admin notification
 const notifyAdmin = async (message: string) => {
