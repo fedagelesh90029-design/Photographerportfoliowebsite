@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Camera, Award, Users, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import avatar from "../../assets/avatar.jpg";
 
 export function About() {
   const [info, setInfo] = useState<any>({});
@@ -40,7 +41,7 @@ export function About() {
             viewport={{ once: true }}
           >
             <img
-              src="https://images.unsplash.com/photo-1526707821106-6428ecac1698?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw4fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBob3RvZ3JhcGh5fGVufDF8fHx8MTc3OTU2NzQwM3ww&ixlib=rb-4.1.0&q=80&w=1080"
+              src={avatar}
               alt="Фотограф"
               className="w-full h-auto"
             />
