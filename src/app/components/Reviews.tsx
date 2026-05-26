@@ -13,10 +13,7 @@ interface Review {
 
 export function Reviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [name, setName] = useState("");
-  const [content, setContent] = useState("");
-  const [rating, setRating] = useState(5);
-  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchReviews();
@@ -28,19 +25,8 @@ export function Reviews() {
       setReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await axios.post("/api/reviews", { name, content, rating });
-      setSubmitted(true);
-      setName("");
-      setContent("");
-      setRating(5);
-    } catch (error) {
-      console.error("Error submitting review:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,71 +42,39 @@ export function Reviews() {
           ОТЗЫВЫ
         </motion.h2>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          <div>
-            <h3 className="text-2xl font-light mb-6">Оставить отзыв</h3>
-            {submitted ? (
-              <p className="text-green-600">Спасибо за ваш отзыв! Он появится после модерации.</p>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Ваше имя"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full p-3 border border-gray-200 focus:border-black outline-none transition-all"
-                  required
-                />
-                <textarea
-                  placeholder="Ваш отзыв"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full p-3 border border-gray-200 focus:border-black outline-none transition-all h-32"
-                  required
-                ></textarea>
-                <div className="flex items-center gap-2">
-                  <span>Рейтинг:</span>
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      size={20}
-                      className={`cursor-pointer ${s <= rating ? "fill-black text-black" : "text-gray-300"}`}
-                      onClick={() => setRating(s)}
-                    />
-                  ))}
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-black text-white py-3 uppercase tracking-wider hover:bg-gray-800 transition-all"
-                >
-                  Отправить
-                </button>
-              </form>
-            )}
-          </div>
-
-          <div className="space-y-8">
-            <h3 className="text-2xl font-light mb-6">Что говорят клиенты</h3>
-            {reviews.length === 0 ? (
-              <p className="text-gray-500 italic">Пока нет отзывов.</p>
-            ) : (
-              reviews.map((review) => (
-                <div key={review.id} className="border-b border-gray-100 pb-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    {[1, 2, 3, 4, 5].map((s) => (
+        <div className="space-y-12">
+          {loading ? (
+            <p className="text-center text-gray-400 uppercase text-xs tracking-widest">Загрузка отзывов...</p>
+          ) : reviews.length === 0 ? (
+            <p className="text-gray-500 italic text-center py-12 border-y">Пока нет отзывов.</p>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
+              {reviews.map((review) => (
+                <div key={review.id} className="relative group">
+                  <div className="flex items-center gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star
-                        key={s}
+                        key={i}
                         size={14}
-                        className={s <= review.rating ? "fill-black text-black" : "text-gray-200"}
+                        className={i < review.rating ? "fill-black text-black" : "text-gray-200"}
                       />
                     ))}
                   </div>
-                  <p className="text-gray-600 italic mb-2">"{review.content}"</p>
-                  <p className="text-sm font-semibold">{review.name}</p>
+                  <p className="text-xl text-gray-700 font-light italic leading-relaxed mb-6">
+                    "{review.content}"
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium uppercase tracking-[0.2em]">
+                      {review.name}
+                    </p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-tighter">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
