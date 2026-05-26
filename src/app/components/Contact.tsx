@@ -1,13 +1,40 @@
 import { motion } from "motion/react";
 import { Mail, Phone, Instagram, MapPin } from "lucide-react";
+import { useState } from "react";
+import axios from "axios";
 
 export function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+
   const contactInfo = [
     { icon: Mail, label: "Email", value: "photo@example.com" },
     { icon: Phone, label: "Телефон", value: "+7 (999) 123-45-67" },
     { icon: Instagram, label: "Instagram", value: "@photographer" },
     { icon: MapPin, label: "Локация", value: "Москва, Россия" },
   ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("sending");
+    try {
+      await axios.post("/api/contact", formData);
+      setStatus("success");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setStatus("error");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
     <section className="py-20 px-6 bg-white">
@@ -51,36 +78,62 @@ export function Contact() {
           <h3 className="text-2xl font-light mb-6 tracking-wider">
             ОТПРАВИТЬ СООБЩЕНИЕ
           </h3>
-          <form className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+          {status === "success" ? (
+            <div className="bg-green-100 text-green-700 p-4 mb-6">
+              Сообщение успешно отправлено! Я свяжусь с вами в ближайшее время.
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Имя"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors"
+                  required
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors"
+                  required
+                />
+              </div>
               <input
                 type="text"
-                placeholder="Имя"
+                name="subject"
+                placeholder="Тема"
+                value={formData.subject}
+                onChange={handleChange}
                 className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors"
+                required
               />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors"
+              <textarea
+                name="message"
+                placeholder="Сообщение"
+                rows={6}
+                value={formData.message}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors resize-none"
+                required
               />
-            </div>
-            <input
-              type="text"
-              placeholder="Тема"
-              className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors"
-            />
-            <textarea
-              placeholder="Сообщение"
-              rows={6}
-              className="w-full px-4 py-3 bg-white border border-gray-200 focus:outline-none focus:border-gray-400 transition-colors resize-none"
-            />
-            <button
-              type="submit"
-              className="w-full bg-black text-white px-8 py-3 uppercase tracking-wider hover:bg-gray-800 transition-colors"
-            >
-              Отправить
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="w-full bg-black text-white px-8 py-3 uppercase tracking-wider hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+              >
+                {status === "sending" ? "Отправка..." : "Отправить"}
+              </button>
+              {status === "error" && (
+                <p className="text-red-500 text-sm">Ошибка при отправке. Попробуйте позже.</p>
+              )}
+            </form>
+          )}
         </motion.div>
       </div>
     </section>

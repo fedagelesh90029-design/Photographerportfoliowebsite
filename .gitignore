@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+*.db
+*.db-journal
+server/node_modules
+server/uploads
+server/dev.db
+server/get_sub.ts
+.DS_Store

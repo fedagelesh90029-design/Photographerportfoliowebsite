@@ -1,68 +1,52 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Masonry from "react-responsive-masonry";
 import { X } from "lucide-react";
+import axios from "axios";
 
-const galleryImages = [
-  {
-    url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBob3RvZ3JhcGh5fGVufDF8fHx8MTc3OTU2NzQwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Портрет",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwcGhvdG9ncmFwaHklMjBlbGVnYW50fGVufDF8fHx8MTc3OTQ0NDUyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Свадьба",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1610765431323-d88c88a2b2c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwcGhvdG9ncmFwaHklMjBzdHVkaW98ZW58MXx8fHwxNzc5NTY3NDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Мода",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1506863530036-1efeddceb993?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBob3RvZ3JhcGh5fGVufDF8fHx8MTc3OTU2NzQwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Портрет",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1606216794079-73f85bbd57d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3ZWRkaW5nJTIwcGhvdG9ncmFwaHklMjBlbGVnYW50fGVufDF8fHx8MTc3OTQ0NDUyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Свадьба",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1590131222139-91ba5992e4ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxmYXNoaW9uJTIwcGhvdG9ncmFwaHklMjBzdHVkaW98ZW58MXx8fHwxNzc5NTY3NDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Мода",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1606143412458-acc5f86de897?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBob3RvZ3JhcGh5fGVufDF8fHx8MTc3OTU2NzQwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Портрет",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3ZWRkaW5nJTIwcGhvdG9ncmFwaHklMjBlbGVnYW50fGVufDF8fHx8MTc3OTQ0NDUyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Свадьба",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1612242879330-cd06b2696e56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHxmYXNoaW9uJTIwcGhvdG9ncmFwaHklMjBzdHVkaW98ZW58MXx8fHwxNzc5NTY3NDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Мода",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1532170579297-281918c8ae72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw2fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBob3RvZ3JhcGh5fGVufDF8fHx8MTc3OTU2NzQwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Портрет",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1607357910286-1ff94ac13c24?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHx3ZWRkaW5nJTIwcGhvdG9ncmFwaHklMjBlbGVnYW50fGVufDF8fHx8MTc3OTQ0NDUyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Свадьба",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1641236210747-48bc43e4517f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwcGhvdG9ncmFwaHklMjBzdHVkaW98ZW58MXx8fHwxNzc5NTY3NDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    category: "Мода",
-  },
-];
+interface Photo {
+  id: number;
+  url: string;
+  category: string;
+  description?: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 export function Gallery() {
+  const [galleryImages, setGalleryImages] = useState<Photo[]>([]);
+  const [categories, setCategories] = useState<string[]>(["Все"]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("Все");
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["Все", "Портрет", "Свадьба", "Мода"];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [photosRes, categoriesRes] = await Promise.all([
+          axios.get("/api/photos"),
+          axios.get("/api/categories")
+        ]);
+        setGalleryImages(photosRes.data);
+        const catNames = ["Все", ...categoriesRes.data.map((c: Category) => c.name)];
+        setCategories(catNames);
+      } catch (error) {
+        console.error("Error fetching gallery data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const filteredImages = filter === "Все"
     ? galleryImages
     : galleryImages.filter(img => img.category === filter);
+
+  if (loading) return <div className="py-20 text-center">Загрузка...</div>;
 
   return (
     <section className="py-20 px-6 bg-white">
@@ -95,7 +79,7 @@ export function Gallery() {
         <Masonry columnsCount={3} gutter="1rem">
           {filteredImages.map((image, index) => (
             <motion.div
-              key={index}
+              key={image.id}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}

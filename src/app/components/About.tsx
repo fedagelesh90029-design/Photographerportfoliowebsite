@@ -1,13 +1,34 @@
 import { motion } from "motion/react";
 import { Camera, Award, Users, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export function About() {
+  const [info, setInfo] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInfo = async () => {
+      try {
+        const response = await axios.get("/api/info");
+        setInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching info:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInfo();
+  }, []);
+
   const stats = [
-    { icon: Camera, value: "500+", label: "Фотосессий" },
-    { icon: Award, value: "15+", label: "Наград" },
-    { icon: Users, value: "300+", label: "Довольных клиентов" },
-    { icon: Heart, value: "1000+", label: "Красивых моментов" },
+    { icon: Camera, value: info.stats_photos || "0+", label: "Фотосессий" },
+    { icon: Award, value: info.stats_awards || "0+", label: "Наград" },
+    { icon: Users, value: info.stats_clients || "0+", label: "Довольных клиентов" },
+    { icon: Heart, value: info.stats_moments || "0+", label: "Красивых моментов" },
   ];
+
+  if (loading) return null;
 
   return (
     <section className="py-20 px-6 bg-gray-50">
@@ -31,17 +52,13 @@ export function About() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-light mb-6 tracking-wider">
-              ОБО МНЕ
+              {info.about_title || "ОБО МНЕ"}
             </h2>
             <p className="text-gray-600 leading-relaxed mb-6">
-              Я профессиональный фотограф с более чем 10-летним опытом работы.
-              Моя страсть — запечатлевать искренние эмоции и создавать
-              визуальные истории, которые останутся с вами навсегда.
+              {info.about_text_1}
             </p>
             <p className="text-gray-600 leading-relaxed mb-8">
-              Специализируюсь на портретной, свадебной и модной фотографии.
-              Каждая фотосессия для меня — это уникальная возможность
-              раскрыть красоту момента и создать настоящее произведение искусства.
+              {info.about_text_2}
             </p>
 
             <div className="grid grid-cols-2 gap-6">

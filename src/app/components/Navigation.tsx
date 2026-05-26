@@ -13,6 +13,7 @@ export function Navigation({ onNavigate }: NavigationProps) {
     { label: "Главная", id: "home" },
     { label: "Портфолио", id: "portfolio" },
     { label: "Обо мне", id: "about" },
+    { label: "Отзывы", id: "reviews" },
     { label: "Контакты", id: "contact" },
   ];
 
