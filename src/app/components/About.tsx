@@ -23,10 +23,10 @@ export function About() {
   }, []);
 
   const stats = [
-    { icon: Camera, value: info.stats_photos || "0+", label: "Фотосессий" },
-    { icon: Award, value: info.stats_awards || "0+", label: "Наград" },
-    { icon: Users, value: info.stats_clients || "0+", label: "Довольных клиентов" },
-    { icon: Heart, value: info.stats_moments || "0+", label: "Красивых моментов" },
+    { icon: Camera, value: info.stats_photos || "30+", label: "Фотосессий" },
+    { icon: Heart, value: info.stats_moments || "1000+", label: "Красивых моментов" },
+    { icon: Users, value: info.stats_clients || "30+", label: "Довольных клиентов" },
+    { icon: Award, value: info.stats_creative || "10+", label: "Творческих проектов" },
   ];
 
   if (loading) return null;

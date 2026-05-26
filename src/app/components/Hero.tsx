@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 export function Hero({ onScrollToPortfolio }: HeroProps) {
-  const [bannerUrl, setBannerUrl] = useState("https://images.unsplash.com/photo-1493863641943-9b68992a8d07?q=80&w=2058");
+  const [bannerUrl, setBannerUrl] = useState("https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=2070");
 
   useEffect(() => {
     const fetchBanner = async () => {

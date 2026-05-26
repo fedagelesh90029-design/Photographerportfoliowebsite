@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Mail, Phone, Instagram, MapPin } from "lucide-react";
+import { Mail, Phone, Send, MapPin } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 
@@ -14,9 +14,9 @@ export function Contact() {
 
   const contactInfo = [
     { icon: Mail, label: "Email", value: "photo@example.com" },
-    { icon: Phone, label: "Телефон", value: "+7 (999) 123-45-67" },
-    { icon: Instagram, label: "Instagram", value: "@photographer" },
-    { icon: MapPin, label: "Локация", value: "Москва, Россия" },
+    { icon: Phone, label: "Телефон", value: "+7 (918) 104-13-55" },
+    { icon: Send, label: "Telegram", value: "@TheTeaLordIsInvincible" },
+    { icon: MapPin, label: "Локация", value: "Сочи, Россия" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
