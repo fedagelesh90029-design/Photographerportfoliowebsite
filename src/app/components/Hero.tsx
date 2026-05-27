@@ -45,7 +45,7 @@ export function Hero({ onScrollToPortfolio }: HeroProps) {
           transition={{ delay: 0.5 }}
           className="text-5xl md:text-8xl font-extralight tracking-[0.2em] mb-6"
         >
-          ИМЯ ФАМИЛИЯ
+          АНТОН ФЕРСЮК
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

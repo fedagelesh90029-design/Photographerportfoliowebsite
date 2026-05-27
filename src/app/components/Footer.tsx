@@ -12,7 +12,7 @@ export function Footer() {
             viewport={{ once: true }}
             className="text-sm text-gray-400"
           >
-            © 2026 Фотограф. Все права защищены.
+            © 2026 Антон Ферсюк. Все права защищены.
           </motion.div>
 
           <motion.div

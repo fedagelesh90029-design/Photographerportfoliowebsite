@@ -42,7 +42,7 @@ export function About() {
           >
             <img
               src={avatar}
-              alt="Фотограф"
+              alt="Антон Ферсюк"
               className="w-full h-auto"
             />
           </motion.div>
