@@ -35,11 +35,12 @@ export function Admin() {
         axios.get("/api/admin/reviews", authHeader),
         axios.get("/api/info"),
       ]);
-      setPhotos(p.data);
-      setCategories(c.data);
-      setReviews(r.data);
-      setSiteInfo(i.data);
-      if (c.data.length > 0 && !newPhotoCategory) setNewPhotoCategory(c.data[0].name);
+      setPhotos(Array.isArray(p.data) ? p.data : []);
+      const cats = Array.isArray(c.data) ? c.data : [];
+      setCategories(cats);
+      setReviews(Array.isArray(r.data) ? r.data : []);
+      setSiteInfo(i.data && typeof i.data === 'object' ? i.data : {});
+      if (cats.length > 0 && !newPhotoCategory) setNewPhotoCategory(cats[0].name);
     } catch (err) {
       console.error(err);
       toast.error("Ошибка при загрузке данных");

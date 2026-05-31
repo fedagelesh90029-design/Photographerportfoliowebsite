@@ -30,8 +30,12 @@ export function Gallery() {
           axios.get("/api/photos"),
           axios.get("/api/categories")
         ]);
-        setGalleryImages(photosRes.data);
-        const catNames = ["Все", ...categoriesRes.data.map((c: Category) => c.name)];
+        
+        const photosData = Array.isArray(photosRes.data) ? photosRes.data : [];
+        const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : [];
+        
+        setGalleryImages(photosData);
+        const catNames = ["Все", ...categoriesData.map((c: Category) => c.name)];
         setCategories(catNames);
       } catch (error) {
         console.error("Error fetching gallery data:", error);
