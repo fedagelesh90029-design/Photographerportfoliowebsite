@@ -15,6 +15,11 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("admin_token"));
 
   useEffect(() => {
+    // Basic connectivity check
+    axios.get("/api/health")
+      .then(res => console.log("API Status:", res.data))
+      .catch(err => console.error("API Unreachable:", err));
+
     const handlePopState = () => {
       setIsAdminPath(window.location.pathname === "/admin");
     };

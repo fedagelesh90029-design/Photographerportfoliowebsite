@@ -266,8 +266,17 @@ app.post('/api/broadcast', authenticateToken, async (req, res) => {
   res.json({ success: true, count: subscribers.length });
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+// --- HEALTH CHECK ---
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}
+
+export default app;
 
 
