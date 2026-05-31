@@ -7,10 +7,12 @@ import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import { Reviews } from "./components/Reviews";
 import { Admin } from "./components/Admin";
+import { Login } from "./components/Login";
 import { Toaster } from "sonner";
 
 export default function App() {
   const [isAdminPath, setIsAdminPath] = useState(window.location.pathname === "/admin");
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("admin_token"));
 
   useEffect(() => {
     const handlePopState = () => {
@@ -19,6 +21,11 @@ export default function App() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  const handleLogin = (token: string) => {
+    localStorage.setItem("admin_token", token);
+    setIsAuthenticated(true);
+  };
 
   const portfolioRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -58,7 +65,7 @@ export default function App() {
     return (
       <>
         <Toaster position="top-center" />
-        <Admin />
+        {isAuthenticated ? <Admin /> : <Login onLogin={handleLogin} />}
       </>
     );
   }

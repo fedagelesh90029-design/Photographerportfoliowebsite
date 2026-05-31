@@ -7,15 +7,18 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-for-photographer-site';
 
 // Supabase Setup
 const supabaseUrl = process.env.SUPABASE_URL || 'https://dsydymmoggsjktjgugft.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''; // Use service_role key for admin access
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +26,33 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN || '8898310243:AAED8H16pJtf7kt5foFou4ishGdWU2rpqWY');
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '7472331326';
+
+// Middleware for auth
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: 'Access denied' });
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) return res.status(403).json({ error: 'Invalid token' });
+    req.user = user;
+    next();
+  });
+};
+
+// --- AUTH ROUTES ---
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { username } });
+
+  if (!user || !await bcrypt.compare(password, user.password)) {
+    return res.status(401).json({ error: 'Неверное имя пользователя или пароль' });
+  }
+
+  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ token });
+});
 
 // Helper to send admin notification
 const notifyAdmin = async (message: string) => {
@@ -47,13 +77,13 @@ app.get('/api/photos', async (req, res) => {
   res.json(photos);
 });
 
-app.post('/api/photos', async (req, res) => {
+app.post('/api/photos', authenticateToken, async (req, res) => {
   const { url, category, description } = req.body;
   const photo = await prisma.photo.create({ data: { url, category, description } });
   res.json(photo);
 });
 
-app.post('/api/upload', upload.single('image'), async (req, res) => {
+app.post('/api/upload', authenticateToken, upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   
   const file = req.file;
@@ -61,6 +91,10 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
   const filename = uniqueSuffix + path.extname(file.originalname);
 
   try {
+    if (!supabase) {
+      throw new Error('Cloud storage not configured (SUPABASE_SERVICE_ROLE_KEY is missing)');
+    }
+
     const { data, error } = await supabase.storage
       .from('uploads')
       .upload(filename, file.buffer, {
@@ -73,18 +107,18 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     // Use relative path for frontend consistency, vercel.json rewrite will handle the rest
     const url = `/uploads/${filename}`;
     res.json({ url });
-  } catch (err) {
-    console.error('Supabase upload error:', err);
-    res.status(500).json({ error: 'Failed to upload to cloud storage' });
+  } catch (err: any) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: err.message || 'Failed to upload' });
   }
 });
 
-app.delete('/api/photos/:id', async (req, res) => {
+app.delete('/api/photos/:id', authenticateToken, async (req, res) => {
   const photo = await prisma.photo.findUnique({ where: { id: parseInt(req.params.id) } });
   
   if (photo && photo.url.includes('/uploads/')) {
     const filename = photo.url.split('/').pop();
-    if (filename) {
+    if (filename && supabase) {
       try {
         await supabase.storage.from('uploads').remove([filename]);
       } catch (err) {
@@ -103,13 +137,13 @@ app.get('/api/categories', async (req, res) => {
   res.json(categories);
 });
 
-app.post('/api/categories', async (req, res) => {
+app.post('/api/categories', authenticateToken, async (req, res) => {
   const { name } = req.body;
   const category = await prisma.category.create({ data: { name } });
   res.json(category);
 });
 
-app.delete('/api/categories/:id', async (req, res) => {
+app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
   await prisma.category.delete({ where: { id: parseInt(req.params.id) } });
   res.json({ success: true });
 });
@@ -120,7 +154,7 @@ app.get('/api/settings/:key', async (req, res) => {
   res.json(setting);
 });
 
-app.post('/api/settings', async (req, res) => {
+app.post('/api/settings', authenticateToken, async (req, res) => {
   const { key, value } = req.body;
   const setting = await prisma.setting.upsert({
     where: { key },
@@ -150,7 +184,7 @@ app.get('/api/info', async (req, res) => {
   res.json(infoMap);
 });
 
-app.post('/api/info', async (req, res) => {
+app.post('/api/info', authenticateToken, async (req, res) => {
   const { key, value } = req.body;
   const info = await prisma.info.upsert({
     where: { key },
@@ -169,7 +203,7 @@ app.get('/api/reviews', async (req, res) => {
   res.json(reviews);
 });
 
-app.get('/api/admin/reviews', async (req, res) => {
+app.get('/api/admin/reviews', authenticateToken, async (req, res) => {
   const reviews = await prisma.review.findMany({ orderBy: { createdAt: 'desc' } });
   res.json(reviews);
 });
@@ -186,7 +220,7 @@ app.post('/api/reviews', async (req, res) => {
   res.json(review);
 });
 
-app.put('/api/reviews/:id/approve', async (req, res) => {
+app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
   const review = await prisma.review.update({
     where: { id: parseInt(req.params.id) },
     data: { approved: true },
@@ -194,7 +228,7 @@ app.put('/api/reviews/:id/approve', async (req, res) => {
   res.json(review);
 });
 
-app.delete('/api/reviews/:id', async (req, res) => {
+app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
   await prisma.review.delete({ where: { id: parseInt(req.params.id) } });
   res.json({ success: true });
 });
@@ -215,7 +249,7 @@ bot.start(async (ctx) => {
 
 bot.launch();
 
-app.post('/api/broadcast', async (req, res) => {
+app.post('/api/broadcast', authenticateToken, async (req, res) => {
   const { message } = req.body;
   const subscribers = await prisma.subscriber.findMany();
 

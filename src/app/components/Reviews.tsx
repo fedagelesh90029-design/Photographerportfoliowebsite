@@ -14,6 +14,9 @@ interface Review {
 export function Reviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [newReview, setNewReview] = useState({ name: "", content: "", rating: 5 });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -30,6 +33,22 @@ export function Reviews() {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await axios.post("/api/reviews", newReview);
+      setNewReview({ name: "", content: "", rating: 5 });
+      setShowForm(false);
+      // Notify user that review is pending moderation
+      alert("Спасибо! Ваш отзыв отправлен на модерацию.");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <section className="py-20 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -41,6 +60,68 @@ export function Reviews() {
         >
           ОТЗЫВЫ
         </motion.h2>
+
+        <div className="flex justify-center mb-16">
+          <button 
+            onClick={() => setShowForm(!showForm)}
+            className="px-8 py-3 border border-black text-xs uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all"
+          >
+            {showForm ? "Закрыть форму" : "Оставить отзыв"}
+          </button>
+        </div>
+
+        {showForm && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mb-20 bg-gray-50 p-8"
+          >
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-gray-400">Ваше имя</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={newReview.name}
+                    onChange={e => setNewReview({...newReview, name: e.target.value})}
+                    className="w-full p-3 bg-white border border-gray-100 outline-none focus:border-black transition-colors"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-gray-400">Оценка</label>
+                  <div className="flex gap-2 py-2">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <Star 
+                        key={star} 
+                        size={20} 
+                        className={`cursor-pointer ${star <= newReview.rating ? "fill-black text-black" : "text-gray-200"}`}
+                        onClick={() => setNewReview({...newReview, rating: star})}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-widest text-gray-400">Ваш отзыв</label>
+                <textarea 
+                  required
+                  rows={4}
+                  value={newReview.content}
+                  onChange={e => setNewReview({...newReview, content: e.target.value})}
+                  className="w-full p-3 bg-white border border-gray-100 outline-none focus:border-black transition-colors resize-none"
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="w-full bg-black text-white py-4 text-xs uppercase tracking-[0.2em] hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
+              >
+                {submitting ? "Отправка..." : "Опубликовать отзыв"}
+              </button>
+            </form>
+          </motion.div>
+        )}
 
         <div className="space-y-12">
           {loading ? (

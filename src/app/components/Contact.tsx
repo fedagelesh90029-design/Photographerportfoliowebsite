@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Mail, Phone, Send, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 export function Contact() {
@@ -11,12 +11,45 @@ export function Contact() {
     message: ""
   });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [info, setInfo] = useState<any>({});
+
+  useEffect(() => {
+    const fetchInfo = async () => {
+      try {
+        const response = await axios.get("/api/info");
+        setInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching info:", error);
+      }
+    };
+    fetchInfo();
+  }, []);
 
   const contactInfo = [
-    { icon: Mail, label: "Email", value: "TheTeaLordIsInvincible@yandex.ru", href: "mailto:TheTeaLordIsInvincible@yandex.ru" },
-    { icon: Phone, label: "Телефон", value: "+7 (918) 104-13-55", href: "tel:+79181041355" },
-    { icon: Send, label: "Telegram", value: "@TheTeaLordIsInvincible", href: "https://t.me/TheTeaLordIsInvincible" },
-    { icon: MapPin, label: "Локация", value: "Сочи, Россия", href: "https://yandex.ru/maps/?text=Сочи" },
+    { 
+      icon: Mail, 
+      label: "Email", 
+      value: info.email || "TheTeaLordIsInvincible@yandex.ru", 
+      href: `mailto:${info.email || "TheTeaLordIsInvincible@yandex.ru"}` 
+    },
+    { 
+      icon: Phone, 
+      label: "Телефон", 
+      value: info.phone || "+7 (918) 104-13-55", 
+      href: `tel:${(info.phone || "+79181041355").replace(/\D/g, "")}` 
+    },
+    { 
+      icon: Send, 
+      label: "Telegram", 
+      value: info.telegram ? `@${info.telegram.replace("@", "")}` : "@TheTeaLordIsInvincible", 
+      href: `https://t.me/${(info.telegram || "TheTeaLordIsInvincible").replace("@", "")}` 
+    },
+    { 
+      icon: MapPin, 
+      label: "Локация", 
+      value: info.location || "Сочи, Россия", 
+      href: `https://yandex.ru/maps/?text=${encodeURIComponent(info.location || "Сочи")}` 
+    },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -22,13 +22,6 @@ export function About() {
     fetchInfo();
   }, []);
 
-  const stats = [
-    { icon: Camera, value: info.stats_photos || "30+", label: "Фотосессий" },
-    { icon: Heart, value: info.stats_moments || "1000+", label: "Красивых моментов" },
-    { icon: Users, value: info.stats_clients || "30+", label: "Довольных клиентов" },
-    { icon: Award, value: info.stats_creative || "10+", label: "Творческих проектов" },
-  ];
-
   if (loading) return null;
 
   return (
@@ -42,8 +35,8 @@ export function About() {
           >
             <img
               src={avatar}
-              alt="Антон Ферсюк"
-              className="w-full h-auto"
+              alt="Антон"
+              className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl"
             />
           </motion.div>
 
@@ -51,34 +44,36 @@ export function About() {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            className="space-y-6"
           >
-            <h2 className="text-4xl md:text-5xl font-light mb-6 tracking-wider">
+            <h2 className="text-4xl md:text-5xl font-light mb-8 tracking-wider">
               {info.about_title || "ОБО МНЕ"}
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-6">
-              {info.about_text_1}
-            </p>
-            <p className="text-gray-600 leading-relaxed mb-8">
-              {info.about_text_2}
-            </p>
-
-            <div className="grid grid-cols-2 gap-6">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-center p-4 bg-white"
-                >
-                  <stat.icon className="w-8 h-8 mx-auto mb-3 text-gray-700" />
-                  <div className="text-3xl font-light mb-1">{stat.value}</div>
-                  <div className="text-sm text-gray-600 uppercase tracking-wider">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
+            
+            <div className="space-y-6 text-gray-700 leading-relaxed font-light">
+              <p className="text-lg text-black font-normal">
+                Меня зовут Антон, я фотограф в Сочи.
+              </p>
+              
+              <p>
+                Главное в моей работе — показать человека живым, сильным, настоящим. Я снимаю портреты, в которых есть объём, характер, настроение. Мне нравится работать со светом и тенью, подмечать детали и создавать кадры, на которые хочется смотреть снова.
+              </p>
+              
+              <p>
+                Да, иногда это уходит в дарк-эстетику или фентези, но чаще — это просто честные, глубокие портреты людей без наигранной улыбки.
+              </p>
+              
+              <p>
+                Я также профессионально работаю с бизнесом: предметная и фуд-съёмки, интерьеры, экстерьеры, деловые портреты сотрудников и владельцев — я знаю, как заставить выглядеть фото дорогими. Остаюсь собой везде: внимательным к деталям и немного художником в душе.
+              </p>
+              
+              <p className="pt-4 text-sm uppercase tracking-widest text-gray-500">
+                Локации: Адлерский, Хостинский, Центральный районы Сочи, Красная Поляна и ФТ Сириус.
+              </p>
+              
+              <div className="pt-8">
+                <p className="italic text-gray-600 mb-4">Хотите попробовать? Напишите мне — обсудим идеи без давления и спешки, разработаем образ и реализуем его вместе!</p>
+              </div>
             </div>
           </motion.div>
         </div>
