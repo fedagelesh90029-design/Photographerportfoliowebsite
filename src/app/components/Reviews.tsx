@@ -25,7 +25,7 @@ export function Reviews() {
   const fetchReviews = async () => {
     try {
       const response = await axios.get("/api/reviews");
-      setReviews(response.data);
+      setReviews(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {
