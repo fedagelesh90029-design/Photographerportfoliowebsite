@@ -26,19 +26,27 @@ export function Gallery() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log("Fetching gallery data...");
         const [photosRes, categoriesRes] = await Promise.all([
           axios.get("/api/photos"),
           axios.get("/api/categories")
         ]);
         
+        console.log("Photos Response Data:", photosRes.data);
+        console.log("Categories Response Data:", categoriesRes.data);
+        
         const photosData = Array.isArray(photosRes.data) ? photosRes.data : [];
         const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : [];
+        
+        if (!Array.isArray(photosRes.data)) {
+          console.warn("Photos API did not return an array. Check server logs.");
+        }
         
         setGalleryImages(photosData);
         const catNames = ["Все", ...categoriesData.map((c: Category) => c.name)];
         setCategories(catNames);
       } catch (error) {
-        console.error("Error fetching gallery data:", error);
+        console.error("Critical error in fetchData:", error);
       } finally {
         setLoading(false);
       }
